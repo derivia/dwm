@@ -98,30 +98,30 @@ static const char *browsercmd[] = {"zen-browser", NULL};
 static const char *mailcmd[] = {"thunderbird", NULL};
 
 Autostarttag autostarttaglist[] = {
-	{.cmd = discordcmd, .tags = 1 << 0 }, // Launch Discord on tag 1
-	{.cmd = browsercmd, .tags = 1 << 1 }, // Launch browser on tag 2
-	{.cmd = mailcmd, .tags = 1 << 8 },    // Launch mail client on tag 9
+	{.cmd = discordcmd, .tags = 1 << 0 },
+	{.cmd = browsercmd, .tags = 1 << 1 },
+	{.cmd = mailcmd, .tags = 1 << 8 },
 	{.cmd = NULL, .tags = 0 },
 };
 
 static const Key keys[] = {
 	/* Modifier                     Key        Function        Argument */
 	{ MODKEY,                       XK_e,      spawn,          SHCMD("thunar") },
-	{ MODKEY,                       XK_n,      spawn,          SPCMD("dmenunotes") },
+	{ MODKEY,                       XK_n,      spawn,          {.v = (const char*[]){ "dmenunotes", NULL } } },
+	{ MODKEY,                       XK_s,      spawn,          {.v = (const char*[]){ "screenshot", NULL } } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_space,  setlayout,      {0} },
+	{ MODKEY,                       XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,						            XK_f,	     togglefullscreen, {0} },
-	{ MODKEY,                       XK_s,      togglesticky,   {0} },
+	{ MODKEY,                       XK_y,      togglesticky,   {0} },
 	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 	TAGKEYS(                        XK_1,                      0)
