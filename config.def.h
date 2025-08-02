@@ -93,6 +93,17 @@ static const Arg tagexec[] = {
 	{ .v = termcmd }
 };
 
+static const char *discordcmd[] = { "discord", NULL };
+static const char *browsercmd[] = {"zen-browser", NULL};
+static const char *mailcmd[] = {"thunderbird", NULL};
+
+Autostarttag autostarttaglist[] = {
+	{.cmd = discordcmd, .tags = 1 << 0 }, // Launch Discord on tag 1
+	{.cmd = browsercmd, .tags = 1 << 1 }, // Launch browser on tag 2
+	{.cmd = mailcmd, .tags = 1 << 8 },    // Launch mail client on tag 9
+	{.cmd = NULL, .tags = 0 },
+};
+
 static const Key keys[] = {
 	/* Modifier                     Key        Function        Argument */
 	{ MODKEY,                       XK_e,      spawn,          SHCMD("thunar") },
