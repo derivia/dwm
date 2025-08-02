@@ -207,14 +207,12 @@ static Monitor *createmon(void);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
-static Monitor *dirtomon(int dir);
 static void drawbar(Monitor *m);
 static void drawbars(void);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void focus(Client *c);
 static void focusin(XEvent *e);
-static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
 static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
@@ -223,7 +221,6 @@ static pid_t getstatusbarpid();
 static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
-static void incnmaster(const Arg *arg);
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
 static void loadxrdb(void);
@@ -258,7 +255,6 @@ static void sigstatusbar(const Arg *arg);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void spawntag(const Arg *arg);
-static void tagmon(const Arg *arg);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglesticky(const Arg *arg);
@@ -772,19 +768,6 @@ void detachstack(Client *c)
   }
 }
 
-Monitor *dirtomon(int dir)
-{
-  Monitor *m = NULL;
-
-  if (dir > 0) {
-    if (!(m = selmon->next)) m = mons;
-  } else if (selmon == mons)
-    for (m = mons; m->next; m = m->next);
-  else
-    for (m = mons; m->next != selmon; m = m->next);
-  return m;
-}
-
 void drawbar(Monitor *m)
 {
   int x, w, tw = 0;
@@ -916,17 +899,6 @@ void focusin(XEvent *e)
   XFocusChangeEvent *ev = &e->xfocus;
 
   if (selmon->sel && ev->window != selmon->sel->win) setfocus(selmon->sel);
-}
-
-void focusmon(const Arg *arg)
-{
-  Monitor *m;
-
-  if (!mons->next) return;
-  if ((m = dirtomon(arg->i)) == selmon) return;
-  unfocus(selmon->sel, 0);
-  selmon = m;
-  focus(NULL);
 }
 
 void focusstack(const Arg *arg)
@@ -1077,12 +1049,6 @@ void grabkeys(void)
                      GrabModeAsync, GrabModeAsync);
     XFree(syms);
   }
-}
-
-void incnmaster(const Arg *arg)
-{
-  selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
-  arrange(selmon);
 }
 
 #ifdef XINERAMA
@@ -1289,11 +1255,59 @@ void movemouse(const Arg *arg)
       if (abs(selmon->wy - ny) < snap) ny = selmon->wy;
       else if (abs((selmon->wy + selmon->wh) - (ny + HEIGHT(c))) < snap)
         ny = selmon->wy + selmon->wh - HEIGHT(c);
-      if (!c->isfloating && selmon->lt[selmon->sellt]->arrange &&
-          (abs(nx - c->x) > snap || abs(ny - c->y) > snap))
-        togglefloating(NULL);
       if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
         resize(c, nx, ny, c->w, c->h, 1);
+      else if (selmon->lt[selmon->sellt]->arrange || !c->isfloating) {
+        if ((m = recttomon(ev.xmotion.x_root, ev.xmotion.y_root, 1, 1)) !=
+            selmon) {
+          sendmon(c, m);
+          selmon = m;
+          focus(NULL);
+        }
+
+        Client *cc = c->mon->clients;
+        while (1) {
+          if (cc == 0) break;
+          if (cc != c && !cc->isfloating && ISVISIBLE(cc) &&
+              ev.xmotion.x_root > cc->x && ev.xmotion.x_root < cc->x + cc->w &&
+              ev.xmotion.y_root > cc->y && ev.xmotion.y_root < cc->y + cc->h) {
+            break;
+          }
+
+          cc = cc->next;
+        }
+
+        if (cc) {
+          Client *cl1, *cl2, ocl1;
+
+          if (!selmon->lt[selmon->sellt]->arrange) return;
+
+          cl1 = c;
+          cl2 = cc;
+          ocl1 = *cl1;
+          strcpy(cl1->name, cl2->name);
+          cl1->win = cl2->win;
+          cl1->x = cl2->x;
+          cl1->y = cl2->y;
+          cl1->w = cl2->w;
+          cl1->h = cl2->h;
+
+          cl2->win = ocl1.win;
+          strcpy(cl2->name, ocl1.name);
+          cl2->x = ocl1.x;
+          cl2->y = ocl1.y;
+          cl2->w = ocl1.w;
+          cl2->h = ocl1.h;
+
+          selmon->sel = cl2;
+
+          c = cc;
+          focus(c);
+
+          arrange(cl1->mon);
+        }
+      }
+
       break;
     }
   } while (ev.type != ButtonRelease);
@@ -1786,12 +1800,6 @@ void spawntag(const Arg *arg)
       }
     }
   }
-}
-
-void tagmon(const Arg *arg)
-{
-  if (!selmon->sel || !mons->next) return;
-  sendmon(selmon->sel, dirtomon(arg->i));
 }
 
 void togglebar(const Arg *arg)
