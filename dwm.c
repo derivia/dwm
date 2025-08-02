@@ -230,7 +230,6 @@ static void loadxrdb(void);
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
 static void maprequest(XEvent *e);
-static void monocle(Monitor *m);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
 static Client *nexttiled(Client *c);
@@ -250,7 +249,6 @@ static void setclientstate(Client *c, long state);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setsticky(Client *c, int sticky);
-static void setgaps(int oh, int ov, int ih, int iv);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setup(void);
@@ -286,7 +284,6 @@ static Monitor *wintomon(Window w);
 static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
-static void xrdb(const Arg *arg);
 static void zoom(const Arg *arg);
 
 static pid_t getparentprocess(pid_t p);
@@ -1237,19 +1234,6 @@ void maprequest(XEvent *e)
   if (!XGetWindowAttributes(dpy, ev->window, &wa) || wa.override_redirect)
     return;
   if (!wintoclient(ev->window)) manage(ev->window, &wa);
-}
-
-void monocle(Monitor *m)
-{
-  unsigned int n = 0;
-  Client *c;
-
-  for (c = m->clients; c; c = c->next)
-    if (ISVISIBLE(c)) n++;
-  if (n > 0) /* override layout symbol */
-    snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%u]", n);
-  for (c = nexttiled(m->clients); c; c = nexttiled(c->next))
-    resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
 }
 
 void motionnotify(XEvent *e)
@@ -2351,16 +2335,6 @@ int xerrorstart(Display *dpy, XErrorEvent *ee)
 {
   die("dwm: another window manager is already running");
   return -1;
-}
-
-void xrdb(const Arg *arg)
-{
-  loadxrdb();
-  int i;
-  for (i = 0; i < LENGTH(colors); i++)
-    scheme[i] = drw_scm_create(drw, colors[i], 3);
-  focus(NULL);
-  arrange(NULL);
 }
 
 void zoom(const Arg *arg)
