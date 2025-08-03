@@ -56,8 +56,8 @@ static const int lockfullscreen = 0; /* 1 will force focus on the fullscreen win
 #include "vanitygaps.c"
 
 static const Layout layouts[] = {
- 	{ "[dwindle]",      dwindle },
-  { "<>",             NULL}
+  { "",      dwindle },
+  { "",      NULL    }
 };
 
 /* key definitions */
