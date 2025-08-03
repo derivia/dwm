@@ -121,6 +121,7 @@ static const Key keys[] = {
 	{ MODKEY,						            XK_f,	     togglefullscreen, {0} },
 	{ MODKEY,                       XK_y,      togglesticky,   {0} },
 	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
+	{ MODKEY|ShiftMask,             XK_l,      spawn,          {.v = (const char*[]){ "slock", NULL } } },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
