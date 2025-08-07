@@ -110,6 +110,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_e,      spawn,          SHCMD("thunar") },
 	{ MODKEY,                       XK_n,      spawn,          {.v = (const char*[]){ "dmenunotes", NULL } } },
 	{ MODKEY,                       XK_s,      spawn,          {.v = (const char*[]){ "screenshot", NULL } } },
+	{ MODKEY,                       XK_c,      spawn,          {.v = (const char*[]){ "colorpick",  NULL } } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
