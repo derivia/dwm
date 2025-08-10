@@ -94,14 +94,7 @@ static const Arg tagexec[] = {
 	{ .v = termcmd }
 };
 
-static const char *discordcmd[] = { "discord", NULL };
-static const char *browsercmd[] = {"zen-browser", NULL};
-static const char *mailcmd[] = {"thunderbird", NULL};
-
 Autostarttag autostarttaglist[] = {
-	{.cmd = discordcmd, .tags = 1 << 0 },
-	{.cmd = browsercmd, .tags = 1 << 1 },
-	{.cmd = mailcmd, .tags = 1 << 8 },
 	{.cmd = NULL, .tags = 0 },
 };
 
