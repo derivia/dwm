@@ -306,7 +306,8 @@ static Client *termforwin(const Client *c);
 static pid_t winpid(Window w);
 
 /* variables */
-static const char broken[] = "broken";
+static int windowNameBarCharLimit = 20; // limit for window name on bar
+static const char broken[] = "Floating [Untagged]*";
 static char stext[256];
 static int statusw;
 static int statussig;
@@ -2259,6 +2260,13 @@ void updatetitle(Client *c)
     gettextprop(c->win, XA_WM_NAME, c->name, sizeof c->name);
   if (c->name[0] == '\0') /* hack to mark broken clients */
     strcpy(c->name, broken);
+  else if (strlen(c->name) > windowNameBarCharLimit) {
+    /* truncate to limit with dots */
+    c->name[windowNameBarCharLimit] = '.';
+    c->name[windowNameBarCharLimit + 1] = '.';
+    c->name[windowNameBarCharLimit + 2] = '.';
+    c->name[windowNameBarCharLimit + 3] = '\0';
+  }
 }
 
 void updatewindowtype(Client *c)
